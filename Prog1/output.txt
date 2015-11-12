@@ -1,0 +1,8 @@
+c++ -DPACKAGE=\"threadsystem\" -DVERSION=\"1.0\" -DPTHREAD=1 -DUNIX_MSG_Q=1 -DSTDC_HEADERS=1 -I/local/eit-linux/apps/ThreadMentor/include -g -O2 -c thread-main.cpp
+In file included from /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/backward/strstream:47,
+                 from /local/eit-linux/apps/ThreadMentor/include/mtuStrstream.h:12,
+                 from /local/eit-linux/apps/ThreadMentor/include/ThreadClass.h:61,
+                 from thread.h:1,
+                 from thread-main.cpp:4:
+/usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/backward/backward_warning.h:28:2: warning: #warning This file includes at least one deprecated or antiquated header which may be removed without further notice at a future date. Please use a non-deprecated interface with equivalent functionality instead. For a listing of replacement headers and interfaces, consult the file backward_warning.h. To disable this warning use -Wno-deprecated.
+

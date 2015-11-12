@@ -1,0 +1,6 @@
+Exception in thread "main" java.lang.NullPointerException
+	at One.main(One.java:15)
+Exception in thread "main" java.lang.NullPointerException
+	at One.main(One.java:15)
+Exception in thread "main" java.lang.NullPointerException
+	at One.main(One.java:15)

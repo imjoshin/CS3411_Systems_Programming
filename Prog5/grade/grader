@@ -1,0 +1,85 @@
+#!/bin/bash
+#author: Josh Johnson
+
+for i in $(seq 1 $#)
+do
+	#echo "Grading $1..."
+	authors=""
+	results=""
+	userid="${1#D.}"
+	file="$1/output"
+
+	authorGrep=$(grep @author -h $1/*.java 2>/dev/null)
+	while read -r line; do
+		#filter name
+		name=$(sed 's/ *\* *@author *//' <<< "$line")
+
+		#check if the name is already in authors
+		if [[ $authors != *"$name"* ]]; then
+			if [ "$authors" = "" ]; then
+				authors="$name"
+			else
+				authors="$authors, $name"
+			fi
+		fi 	
+
+	done <<< "$authorGrep"
+
+	if [ "$authors" = "" ]; then
+		authors="userid $userid"
+	fi
+
+	echo -e "Results for $authors">"$file"
+
+	if [ $(ls -l $1/*.java 2>/dev/null | wc -l) = 0 ]; then
+		#echo "No Java files found."
+		echo -e "\nno .java file(s) submitted" >> "$file"
+		shift
+		continue
+	fi
+
+
+	#check for compilation errors
+	if javac $1/*.java 2>/dev/null ; then
+		echo -e "\nno compilation errors" >> "$file"
+
+		numMains=$(cat $1/* | grep -c " *public *static *void *main *( *String *\[ *] * args *)")
+		#check number of mains
+		if [ "$numMains" = "1" ]; then
+			#execute
+			echo -e "\nexecuting\n" >> "$file"
+
+			main=$(grep -l " *public *static *void *main *( *String *\[ *] * args *)" $1/*.java | sed 's/.java//')
+			main=$(basename $main)
+
+			$(java -cp $1 $main >>$file 2>>$file) 
+			status=$?
+			
+			if [ "$status" = "0" ]; then
+				echo -e "\nnormal termination" >> "$file"
+			else
+				echo -e "\nabnormal termination" >> "$file"
+			fi
+
+		elif [ "$numMains" = "0" ]; then
+			echo -e "\nno main in any class, can't execute" >> "$file"
+			shift
+			continue
+		else
+			echo -e "\nmains in several classes, can't execute" >> "$file"
+			shift
+			continue
+		fi
+
+	else
+		echo -e "\ndid not compile\n" >> "$file"
+
+		stderr=$(javac $1/*.java 2>&1)
+		stderr=$(sed s:$1/:: <<< "$stderr")
+		while IFS= read -r line; do
+			echo -e "     $line" >> "$file"
+		done <<< "$stderr"
+	fi
+
+	shift
+done

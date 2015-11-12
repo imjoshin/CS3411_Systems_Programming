@@ -1,0 +1,2 @@
+#!/bin/bash
+./grader D.good D.manymains D.nocompile D.nofiles D.nomain D.runtimerror

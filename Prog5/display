@@ -1,0 +1,34 @@
+#!/bin/bash
+#author: Josh Johnson
+
+tabs=''
+for i in `seq 0 $(($2 - 1))`
+do
+	tabs="$tabs    "
+done
+
+nextT=$(($2 + 1))
+
+if [ $(ls $1 | wc -l) = "0" ]; then
+	exit
+else
+	folder=$(ls $1 | LC_COLLATE=C sort)
+
+	while IFS= read -r entry; do
+		name="$tabs$entry"
+
+		lead="$1/"
+		if [ "$nextT" = "1" ]; then
+			lead="$1"
+		fi
+
+		dir=""
+		if [ -d "$lead$entry" ]; then
+			echo "$tabs$entry (directory)"
+			./$0 "$lead$entry" $nextT
+		else
+			echo "$tabs$entry"
+		fi
+
+	done <<< "$folder"
+fi

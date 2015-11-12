@@ -1,0 +1,4 @@
+#!/bin/sh
+#author: Josh Johnson
+
+echo "$*" | tr " " "\n" | sort -n | tr "\n" " "; echo

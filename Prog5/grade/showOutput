@@ -1,0 +1,15 @@
+#!/bin/bash
+files="good manymains nocompile nofiles nomain runtimerror"
+if [ "$1" = "all" ]; then
+	for file in $files ; do
+		echo -e "$file:"
+		echo -e "\e[91m$(diff D.$file/output ExpectedOutputs/D.$file/output)\e[39m\n"
+	done
+else
+	echo -e "\nD.$1/output..."
+	echo -e "\e[32m$(cat D.$1/output)\e[39m"
+	echo -e "\n\nExpectedOutputs/D.$1/output..."
+	echo -e "\e[36m$(cat ExpectedOutputs/D.$1/output)\e[39m"
+	echo -e "\n\nDifferences..."
+	echo -e "\e[91m$(diff D.$1/output ExpectedOutputs/D.$1/output)\e[39m"
+fi

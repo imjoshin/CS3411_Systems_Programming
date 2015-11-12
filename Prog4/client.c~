@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#define h_addr h_addr_list[0]
+
+void sendint(int, int);
+int receiveint(int);
+
+int main(int argc, char* argv[]){
+	int i;
+	bool gameOver = false;
+	int int1;
+	int int2;
+	int player1 = 0;
+	int player2 = 0;
+	char board[] = "......................................................";
+	char ch;
+	char indexLine1[] = "          111111111122222222223333333333444444444455\n";
+	char indexLine2[] = "0123456789012345678901234567890123456789012345678901\n";
+
+	if(argc != 3){
+		fprintf(stderr, "Usage: client <domain> <port>\n");
+		exit(1);
+	}
+
+	printf("\n\nConnecting to %s:%s...\n", argv[1], argv[2]);
+
+	//get port number
+	unsigned short port = atoi(argv[2]);
+
+	//set up socket
+	int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_fd < 0) {
+		perror("socket");
+		exit(1);
+	}
+
+	//create socket address
+	struct sockaddr_in dest;
+	memset((char *) &dest, sizeof(dest), 0);
+
+	struct hostent* hostptr = gethostbyname(argv[1]);
+	if (!hostptr) {
+		//CHANGE TO HERROR AT SOME POINT
+		perror("lookup error");
+		exit(1);
+	}
+
+	dest.sin_family = (short) AF_INET;
+	memcpy((char *) &dest.sin_addr, (char *) hostptr->h_addr, hostptr->h_length);
+	dest.sin_port = htons(port);
+
+
+
+	//connect to the server
+	int cret = connect(socket_fd, (struct sockaddr*) &dest, sizeof(dest));
+	if (cret < 0){
+		perror("connect");
+		exit(1);
+	}
+	printf("Connected!\n\n");
+
+	while(!gameOver){
+		printf("Enter two integers: ");
+		scanf("%d %d", &int1, &int2);
+
+		while(int1 < 0 && int1 > 51 && int2 < 0 && int2 > 51){
+			printf("\nInvalid entry.\nEnter two integers: ");
+			scanf("%d %d", &int1, &int2);
+		}
+	
+		//send guessed ints to server
+		sendint(socket_fd, int1);
+		sendint(socket_fd, int2);
+
+		//get board from server
+		i = 0;
+		//while(read(socket_fd, &ch, 1) == 1){
+		//	printf("Read %s from server.\n", ch);
+		//	board[i] = ch;
+		//	i++;
+		//}
+
+		//get scores
+		player1 = receiveint(socket_fd);
+		player2 = receiveint(socket_fd);
+		
+		printf("%s%s%s\nPlayer 1: %d\tPlayer2: %d\n\n", indexLine1, indexLine2, ch, player1, player2);
+
+		//check for game over
+		if(player1 > 13){
+			gameOver = true;
+			printf("Player 1 wins!\n");
+		}else if(player2 > 13){
+			gameOver = true;
+			printf("Player 2 wins!\n");
+		}else if(player1 == 13 && player2 == 13){
+			gameOver = true;
+			printf("Tie!\n");
+		}
+	}
+	
+	close(socket_fd);
+	exit(0);
+}
+
+
+
+
+
